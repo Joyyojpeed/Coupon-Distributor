@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupon Claim</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎉 Coupon Claim 🎉</h1>
+      <p>Claim your exclusive coupon now!</p>
+    </header>
+
+    <main>
+      <div class="coupon-card">
+        <button id="claimButton" class="claim-button">
+          <span id="buttonText">Claim Your Coupon</span>
+          <div id="loadingSpinner" class="loading-spinner"></div>
+        </button>
+        <p id="message" class="message"></p>
+      </div>
+
+      <div class="history-section">
+        <h2>Your Coupon History</h2>
+        <ul id="historyList" class="history-list"></ul>
+      </div>
+    </main>
+
+    <footer>
+      <p>Developed by [Your Name] | Round-Robin Coupon Distribution</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
