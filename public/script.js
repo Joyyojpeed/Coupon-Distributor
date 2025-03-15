@@ -26,6 +26,13 @@ async function fetchCouponHistory() {
 // Fetch and display coupon history when the page loads
 document.addEventListener('DOMContentLoaded', fetchCouponHistory);
 
+// Helper function to convert seconds to 00:00 format
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
 // Existing coupon claim logic
 document.getElementById('claimButton').addEventListener('click', async () => {
   const button = document.getElementById('claimButton');
@@ -53,7 +60,9 @@ document.getElementById('claimButton').addEventListener('click', async () => {
       let remainingTime = result.remainingTime;
       const timerInterval = setInterval(() => {
         if (remainingTime > 0) {
-          messageElement.textContent = `Please try again in ${remainingTime} seconds.`;
+          // Format the remaining time as 00:00
+          const formattedTime = formatTime(remainingTime);
+          messageElement.textContent = `Please try again in ${formattedTime}.`;
           remainingTime--;
         } else {
           clearInterval(timerInterval);
