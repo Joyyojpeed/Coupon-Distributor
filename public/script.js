@@ -3,7 +3,7 @@ async function fetchCouponHistory() {
   const historyList = document.getElementById('historyList');
 
   try {
-    const response = await fetch('http://localhost:3000/history');
+    const response = await fetch("https://coupon-distributor.vercel.app/history");    
     const result = await response.json();
 
     // Log the response for debugging
@@ -41,7 +41,7 @@ document.getElementById('claimButton').addEventListener('click', async () => {
 
   try {
     // Use the full URL for the fetch call
-    const response = await fetch('http://localhost:3000/claim');
+    const response = await fetchfetch("https://coupon-distributor.vercel.app/claim");
     const result = await response.json();
 
     // Update the message
