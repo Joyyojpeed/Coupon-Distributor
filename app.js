@@ -18,7 +18,14 @@ let currentIndex = 0;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static('public')); // Serve static files (HTML, CSS, JS)
+const path = require('path');
+
+app.use(express.static(path.join(__dirname, 'public'))); // ✅ Ensure correct static path
+
+// ✅ Serve index.html explicitly for `/`
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+}); // Serve static files (HTML, CSS, JS)
 
 // Connect to MongoDB
 async function connectToMongoDB() {
