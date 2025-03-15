@@ -69,7 +69,7 @@ app.get('/claim', async (req, res) => {
   if (existingClaim && (Date.now() - existingClaim.timestamp) < 3600000) {
     const remainingTime = Math.ceil((3600000 - (Date.now() - existingClaim.timestamp)) / 1000); // Calculate remaining time in seconds
     return res.status(429).json({ 
-      message: `You have already claimed a coupon. Please try again in ${remainingTime} seconds.`,
+      message: `You have already claimed a coupon. Please try again in sometime.`,
       remainingTime: remainingTime // Send remaining time to the frontend
     });
   }
