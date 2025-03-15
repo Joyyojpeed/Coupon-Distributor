@@ -3,7 +3,7 @@ async function fetchCouponHistory() {
   const historyList = document.getElementById('historyList');
 
   try {
-    const response = await fetch("https://coupon-distributor.vercel.app/history");    
+    const response = await fetch("https://coupon-distributor-aigpjwc1a-joy-yojs-projects.vercel.app//history");    
     const result = await response.json();
 
     // Log the response for debugging
@@ -48,7 +48,7 @@ document.getElementById('claimButton').addEventListener('click', async () => {
 
   try {
     // Use the full URL for the fetch call
-    const response = await fetch("https://coupon-distributor.vercel.app/claim");
+    const response = await fetch("https://coupon-distributor-aigpjwc1a-joy-yojs-projects.vercel.app//claim");
     const result = await response.json();
 
     // Update the message
