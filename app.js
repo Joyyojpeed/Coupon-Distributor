@@ -13,19 +13,18 @@ const client = new MongoClient(uri);
 
 // In-memory coupon list
 let coupons = ["COUPON1", "COUPON2", "COUPON3", "COUPON4"];
-let currentIndex = 0;
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'public'))); // ✅ Ensure correct static path
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
-// ✅ Serve index.html explicitly for `/`
+// Serve index.html explicitly for `/`
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-}); // Serve static files (HTML, CSS, JS)
+});
 
 // Connect to MongoDB
 async function connectToMongoDB() {
@@ -53,6 +52,7 @@ app.get('/claim', async (req, res) => {
   const db = client.db('couponApp');
   const claimsCollection = db.collection('claims');
   const historyCollection = db.collection('assignmentHistory');
+  const indexCollection = db.collection('couponIndex');
 
   const existingClaim = await claimsCollection.findOne({ ip: userIP });
 
@@ -65,13 +65,27 @@ app.get('/claim', async (req, res) => {
     return res.status(429).json({ message: `You have already claimed a coupon in this session.` });
   }
 
+  // Fetch the current index from the database
+  let indexDoc = await indexCollection.findOne({ _id: 'currentIndex' });
+  if (!indexDoc) {
+    // Initialize the index if it doesn't exist
+    await indexCollection.insertOne({ _id: 'currentIndex', value: 0 });
+    indexDoc = { value: 0 };
+  }
+
   // Assign coupon
   if (coupons.length === 0) {
     return res.status(500).json({ message: 'No coupons available.' });
   }
 
-  const coupon = coupons[currentIndex];
-  currentIndex = (currentIndex + 1) % coupons.length;
+  const coupon = coupons[indexDoc.value];
+  const newIndex = (indexDoc.value + 1) % coupons.length;
+
+  // Update the index in the database
+  await indexCollection.updateOne(
+    { _id: 'currentIndex' },
+    { $set: { value: newIndex } }
+  );
 
   // Log the coupon assignment
   console.log(`✅ Assigned coupon: ${coupon} to IP: ${userIP}`);
@@ -130,5 +144,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
 });
 
-// 🔹 REMOVE `app.listen()` and EXPORT the app for Vercel
+// Export the app for Vercel
 module.exports = app;
