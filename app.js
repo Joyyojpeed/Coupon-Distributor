@@ -26,17 +26,20 @@ const limiter = rateLimit({
 // Apply rate limiter to all requests
 app.use(limiter);
 
-const cors = require('cors');
 
 const allowedOrigins = [
-  'https://coupon-distributor.vercel.app', // Production URL
-  'https://coupon-distributor-git-main-joy-yojs-projects.vercel.app',
-  'https://coupon-distributor-bjdi3pocf-joy-yojs-projects.vercel.app/'
-   // Preview URL
+  'https://coupon-distributor.vercel.app', // ✅ Main Production Deployment
+  /\.vercel\.app$/ // ✅ Dynamically allows all Vercel preview deployments
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.some(pattern => pattern instanceof RegExp ? pattern.test(origin) : pattern === origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
