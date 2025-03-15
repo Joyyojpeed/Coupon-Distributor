@@ -22,13 +22,14 @@
 ## ⚙️ Setup Instructions
 
 ### **1️⃣ Clone the Repository**
-```sh
+```sh 
 git clone https://github.com/Joyyojpeed/CouponDistributor.git
 cd CouponDistributor
-
+```
 ### **2️⃣ Install Dependencies**
 ```sh
 npm install
+```
 
 ### **3️⃣ Configure MongoDB**
 1. Create a MongoDB Atlas Cluster ([MongoDB Atlas](https://www.mongodb.com/cloud/atlas)).
@@ -37,4 +38,16 @@ npm install
    **Example:**
    ```bash
    mongodb+srv://your-username:password@cluster.mongodb.net/couponApp
+   ```
+3. Create a .env file in the root of your project and add:
+   ```bash
+   MONGODB_URI=mongodb+srv://your-username:password@cluster.mongodb.net/couponApp
+   COOKIE_SECRET=your-secret-key
+   ```
+### **4️⃣ Run the Project Locally**
+   ```
+   npm start
+   ```
+🔗 Open http://localhost:3000/ in your browser.
+
 
