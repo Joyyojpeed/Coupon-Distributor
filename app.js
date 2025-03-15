@@ -2,9 +2,11 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors'); // Import the cors package
 const cookieParser = require('cookie-parser');
 const { MongoClient } = require('mongodb');
-const rateLimit = require('express-rate-limit'); // For rate limiting
+const rateLimit = require('express-rate-limit');
+
 const app = express();
 
 // MongoDB connection string (loaded from .env)
@@ -24,9 +26,15 @@ const limiter = rateLimit({
 // Apply rate limiter to all requests
 app.use(limiter);
 
+// Enable CORS for all routes
+app.use(cors({
+  origin: 'https://coupon-distributor-aigpjwc1a-joy-yojs-projects.vercel.app', // Allow requests from your frontend
+  credentials: true, // Allow cookies to be sent with requests
+}));
+
 // Middleware
 app.use(express.json());
-app.use(cookieParser(process.env.COOKIE_SECRET)); // Add a secret key for signed cookies
+app.use(cookieParser(process.env.COOKIE_SECRET)); // Use a secret key for signed cookies
 const path = require('path');
 
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
@@ -127,7 +135,7 @@ app.get('/claim', async (req, res) => {
   res.cookie('couponClaimed', true, { 
     maxAge: 3600000, // 1 hour
     httpOnly: true, // Prevent client-side access
-    secure: true, // Only send over HTTPS
+    secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
     signed: true, // Sign the cookie
     sameSite: 'strict', // Prevent CSRF attacks
   });
