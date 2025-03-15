@@ -4,8 +4,8 @@ require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { MongoClient } = require('mongodb');
+
 const app = express();
-const port = process.env.PORT || 3000;
 
 // MongoDB connection string (loaded from .env)
 const uri = process.env.MONGODB_URI;
@@ -24,10 +24,10 @@ app.use(express.static('public')); // Serve static files (HTML, CSS, JS)
 async function connectToMongoDB() {
   try {
     await client.connect();
-    console.log('Connected to MongoDB Atlas');
+    console.log('✅ Connected to MongoDB Atlas');
   } catch (err) {
-    console.error('Error connecting to MongoDB Atlas:', err);
-    process.exit(1); // Exit the process if the connection fails
+    console.error('❌ Error connecting to MongoDB Atlas:', err);
+    process.exit(1);
   }
 }
 connectToMongoDB();
@@ -67,7 +67,7 @@ app.get('/claim', async (req, res) => {
   currentIndex = (currentIndex + 1) % coupons.length;
 
   // Log the coupon assignment
-  console.log(`Assigned coupon: ${coupon} to IP: ${userIP}`);
+  console.log(`✅ Assigned coupon: ${coupon} to IP: ${userIP}`);
 
   // Update IP claims in MongoDB
   await claimsCollection.updateOne(
@@ -83,9 +83,9 @@ app.get('/claim', async (req, res) => {
       ip: userIP,
       timestamp: Date.now(),
     });
-    console.log('Coupon assignment saved to history:', { coupon, ip: userIP });
+    console.log('✅ Coupon assignment saved to history:', { coupon, ip: userIP });
   } catch (err) {
-    console.error('Error saving coupon assignment history:', err);
+    console.error('❌ Error saving coupon assignment history:', err);
   }
 
   // Set cookie
@@ -107,23 +107,21 @@ app.get('/history', async (req, res) => {
     const history = await historyCollection.find({ ip: userIP }).toArray();
 
     // Log the query results for debugging
-    console.log('History Query Results:', history);
+    console.log('📜 History Query Results:', history);
 
     // Send the history as a response
     res.json({ history });
   } catch (err) {
-    console.error('Error fetching coupon history:', err);
+    console.error('❌ Error fetching coupon history:', err);
     res.status(500).json({ message: 'An error occurred while fetching history.' });
   }
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Unexpected error:', err);
+  console.error('❌ Unexpected error:', err);
   res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+// 🔹 REMOVE `app.listen()` and EXPORT the app for Vercel
+module.exports = app;
