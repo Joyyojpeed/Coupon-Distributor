@@ -26,10 +26,18 @@ const limiter = rateLimit({
 // Apply rate limiter to all requests
 app.use(limiter);
 
-// Enable CORS for all routes
+const cors = require('cors');
+
+const allowedOrigins = [
+  'https://coupon-distributor.vercel.app', // Production URL
+  'https://coupon-distributor-git-main-joy-yojs-projects.vercel.app',
+  'https://coupon-distributor-bjdi3pocf-joy-yojs-projects.vercel.app/'
+   // Preview URL
+];
+
 app.use(cors({
-  origin: 'https://coupon-distributor-aigpjwc1a-joy-yojs-projects.vercel.app', // Allow requests from your frontend
-  credentials: true, // Allow cookies to be sent with requests
+  origin: allowedOrigins,
+  credentials: true
 }));
 
 // Middleware
