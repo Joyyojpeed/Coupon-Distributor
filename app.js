@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { MongoClient } = require('mongodb');
-
+const rateLimit = require('express-rate-limit'); // For rate limiting
 const app = express();
 
 // MongoDB connection string (loaded from .env)
@@ -14,9 +14,19 @@ const client = new MongoClient(uri);
 // In-memory coupon list
 let coupons = ["COUPON1", "COUPON2", "COUPON3", "COUPON4"];
 
+// Rate limiting configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes.',
+});
+
+// Apply rate limiter to all requests
+app.use(limiter);
+
 // Middleware
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET)); // Add a secret key for signed cookies
 const path = require('path');
 
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
@@ -46,7 +56,7 @@ function getClientIP(req) {
 // Endpoint to claim a coupon
 app.get('/claim', async (req, res) => {
   const userIP = getClientIP(req); // Get the user's IP address
-  const userCookie = req.cookies.couponClaimed;
+  const userCookie = req.signedCookies.couponClaimed; // Use signed cookies
 
   // Check IP-based restriction
   const db = client.db('couponApp');
@@ -57,7 +67,11 @@ app.get('/claim', async (req, res) => {
   const existingClaim = await claimsCollection.findOne({ ip: userIP });
 
   if (existingClaim && (Date.now() - existingClaim.timestamp) < 3600000) {
-    return res.status(429).json({ message: `You have already claimed a coupon. Please try again after 1 hour.` });
+    const remainingTime = Math.ceil((3600000 - (Date.now() - existingClaim.timestamp)) / 1000); // Calculate remaining time in seconds
+    return res.status(429).json({ 
+      message: `You have already claimed a coupon. Please try again in ${remainingTime} seconds.`,
+      remainingTime: remainingTime // Send remaining time to the frontend
+    });
   }
 
   // Check cookie-based restriction
@@ -109,8 +123,14 @@ app.get('/claim', async (req, res) => {
     console.error('❌ Error saving coupon assignment history:', err);
   }
 
-  // Set cookie
-  res.cookie('couponClaimed', true, { maxAge: 3600000 });
+  // Set secure, HTTP-only, signed cookie
+  res.cookie('couponClaimed', true, { 
+    maxAge: 3600000, // 1 hour
+    httpOnly: true, // Prevent client-side access
+    secure: true, // Only send over HTTPS
+    signed: true, // Sign the cookie
+    sameSite: 'strict', // Prevent CSRF attacks
+  });
 
   // Send response
   res.json({ message: `Success! Your coupon is: ${coupon}` });

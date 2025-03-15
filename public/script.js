@@ -47,10 +47,24 @@ document.getElementById('claimButton').addEventListener('click', async () => {
     // Update the message
     if (response.status === 429) {
       messageElement.classList.add('error');
+      messageElement.textContent = result.message;
+
+      // Start the countdown timer
+      let remainingTime = result.remainingTime;
+      const timerInterval = setInterval(() => {
+        if (remainingTime > 0) {
+          messageElement.textContent = `Please try again in ${remainingTime} seconds.`;
+          remainingTime--;
+        } else {
+          clearInterval(timerInterval);
+          messageElement.textContent = 'You can now claim another coupon!';
+          messageElement.classList.remove('error');
+        }
+      }, 1000);
     } else {
       messageElement.classList.remove('error');
+      messageElement.textContent = result.message;
     }
-    messageElement.textContent = result.message;
 
     // Add the claimed coupon to the history
     if (response.ok) {
