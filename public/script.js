@@ -41,7 +41,7 @@ document.getElementById('claimButton').addEventListener('click', async () => {
 
   try {
     // Use the full URL for the fetch call
-    const response = await fetchfetch("https://coupon-distributor.vercel.app/claim");
+    const response = await fetch("https://coupon-distributor.vercel.app/claim");
     const result = await response.json();
 
     // Update the message
